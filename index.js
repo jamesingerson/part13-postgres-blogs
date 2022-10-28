@@ -15,6 +15,23 @@ app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/login", loginRouter);
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "SequelizeDatabaseError") {
+    return response
+      .status(400)
+      .send({ error: "Invalid values provided for fields." });
+  } else if (error.name === "SequelizeValidationError") {
+    return response.status(400).send({ error: error.message });
+  }
+
+  next(error);
+};
+
+// must be last
+app.use(errorHandler);
+
 const start = async () => {
   await connectToDatabase();
   app.listen(PORT, () => {
