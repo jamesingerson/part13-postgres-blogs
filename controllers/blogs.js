@@ -11,12 +11,8 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  try {
-    const blog = await Blog.create(req.body);
-    return res.json(blog);
-  } catch (error) {
-    return res.status(400).json({ error });
-  }
+  const blog = await Blog.create(req.body);
+  return res.json(blog);
 });
 
 const blogFinder = async (req, res, next) => {
@@ -50,5 +46,22 @@ router.put("/:id", blogFinder, async (req, res) => {
     res.status(404).end();
   }
 });
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "SequelizeDatabaseError") {
+    return response
+      .status(400)
+      .send({ error: "Invalid values provided for fields." });
+  } else if (error.name === "SequelizeValidationError") {
+    return response.status(400).send({ error: "Malformed data provided." });
+  }
+
+  next(error);
+};
+
+// must be last
+router.use(errorHandler);
 
 module.exports = router;
