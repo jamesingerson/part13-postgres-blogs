@@ -4,6 +4,7 @@
   "description": "Full Stack Open Part 13 Relational Databases Blog Application",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
