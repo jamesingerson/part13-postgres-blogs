@@ -60,10 +60,17 @@ router.get("/:id", blogFinder, async (req, res) => {
   }
 });
 
-router.delete("/:id", blogFinder, async (req, res) => {
+router.delete("/:id", [blogFinder, tokenExtractor], async (req, res) => {
   if (req.blog) {
-    await Blog.destroy({ where: { id: req.blog.id } });
-    res.json(req.blog);
+    const user = await User.findByPk(req.decodedToken.id);
+    console.log(user);
+    console.log("ids", user.id, req.blog.userId);
+    if (user.id === req.blog.userId) {
+      await Blog.destroy({ where: { id: req.blog.id } });
+      res.json(req.blog);
+    } else {
+      return res.status(401).json({ error: "only original poster may delete" });
+    }
   } else {
     res.status(404).end();
   }
